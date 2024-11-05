@@ -57,7 +57,8 @@ def area_urbanizada():
 
     # Adicionando fonte dos dados
     st.markdown("**Fonte:** https://servicodados.ibge.gov.br/api/v3/agregados/8418/periodos/2019/variaveis/12749?localidades=N2[all]")
-    st.json(informacoes)
+    with st.expander("Visualizar dados brutos (JSON)"):
+        st.json(informacoes)
     
 
 
@@ -100,5 +101,6 @@ def censo_demografico():
 
     # Exibindo os dados brutos em formato JSON
     st.markdown("**Fonte:** https://servicodados.ibge.gov.br/api/v3/agregados/1298/periodos/1920|1940|1950|1960|1970|1980|1991|2000|2010/variaveis/614?localidades=N1[all]")
-    st.json(informacoes)
+    with st.expander("Visualizar dados brutos (JSON)"):
+        st.json(informacoes)
     
