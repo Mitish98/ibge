@@ -7,45 +7,61 @@ import json
 def area_urbanizada():
     # URL da API do IBGE
     link = "https://servicodados.ibge.gov.br/api/v3/agregados/8418/periodos/2019/variaveis/12749?localidades=N2[all]"
+    link2 = "https://servicodados.ibge.gov.br/api/v3/agregados/8418/periodos/2019/variaveis/12750?localidades=N2[all]"
 
     # Fazendo a requisição
     requisicao = requests.get(link)
+    requisicao2 = requests.get(link2)
     informacoes = requisicao.json()
+    informacoes2 = requisicao2.json()
 
     # Extraindo os dados para um DataFrame
     dados = []
+    dados2 = []
     for resultado in informacoes[0]['resultados'][0]['series']:
         estado = resultado['localidade']['nome']
         valor = float(resultado['serie']['2019'])
         dados.append({'Localidade': estado, 'Quilômetros quadrados': valor})
 
-    df = pd.DataFrame(dados)
+    for resultado in informacoes2[0]['resultados'][0]['series']:
+        estado = resultado['localidade']['nome']
+        valor = float(resultado['serie']['2019'])
+        dados2.append({'Localidade': estado, 'Quilômetros quadrados': valor})
 
+    df = pd.DataFrame(dados)
+    df2 = pd.DataFrame(dados2)
 
     # Criando o gráfico de barras com Plotly
     fig_bar = px.bar(df, 
                  x='Localidade', 
                  y='Quilômetros quadrados',
-                 title='Área Urbanizada por Grandes Regiões no Brasil',
+                 title='Áreas Urbanizadas por Grande Região',
+                 labels={'Valor': 'Valor', 'Estado': 'Estado'})
+
+    fig_bar2 = px.bar(df2,
+                 x='Localidade',
+                 y='Quilômetros quadrados', 
+                 title='Loteamentos urbanos vazios',
                  labels={'Valor': 'Valor', 'Estado': 'Estado'})
 
     # Criando o gráfico de pizza com Plotly
     fig_pie = px.pie(df,
                      values='Quilômetros quadrados',
                      names='Localidade')
-    
 
-                    
+    fig_pie2 = px.pie(df2,
+                     values='Quilômetros quadrados',
+                     names='Localidade')
+    
     # Exibindo no Streamlit
     st.title('Dados Abertos do IBGE')
     st.markdown('Projeção de gráficos para facilitar a visualização e o estudo de dados abertos fornecidos pelo IBGE.')
 
-  # Adicionando espaço entre os gráficos
+    # Adicionando espaço entre os gráficos
     st.markdown("<br><br>", unsafe_allow_html=True)
 
     st.header('Urbanização')
-
-
+    st.write('Dados sobre urbanização no Brasil.')
 
     # Criando três colunas para exibir os gráficos com espaço no meio
     col1, col_espaco, col2 = st.columns([4, 1, 3])
@@ -56,10 +72,20 @@ def area_urbanizada():
     with col2:
         st.plotly_chart(fig_pie, use_container_width=True)
 
+    col3, col_espaco2, col4 = st.columns([4, 1, 3])
+
+    with col3:
+        st.plotly_chart(fig_bar2, use_container_width=True)
+        
+    with col4:
+        st.plotly_chart(fig_pie2, use_container_width=True)
+
     # Adicionando fonte dos dados
     st.markdown("**Fonte:** https://servicodados.ibge.gov.br/api/v3/agregados/8418/periodos/2019/variaveis/12749?localidades=N2[all]")
+    st.markdown("**Fonte 2:** https://servicodados.ibge.gov.br/api/v3/agregados/8418/periodos/2019/variaveis/12750?localidades=N2[all]")
     with st.expander("Visualizar dados brutos (JSON)"):
         st.json(informacoes)
+        st.json(informacoes2)
     
 
 
@@ -151,98 +177,85 @@ def especies_ameacadas():
 
 
 
-def pib():
-    # URL da API do IBGE
-    link = "https://servicodados.ibge.gov.br/api/v3/agregados/6784/periodos/1996|1997|1998|1999|2000|2001|2002|2003|2004|2005|2006|2007|2008|2009|2010|2011|2012|2013|2014|2015|2016|2017|2018|2019|2020|2021/variaveis/9808?localidades=N1[all]"
+def pib_e_pibpc():
+    # URLs da API do IBGE
+    link_pib = "https://servicodados.ibge.gov.br/api/v3/agregados/6784/periodos/1996|1997|1998|1999|2000|2001|2002|2003|2004|2005|2006|2007|2008|2009|2010|2011|2012|2013|2014|2015|2016|2017|2018|2019|2020|2021/variaveis/9808?localidades=N1[all]"
+    link_pibpc = "https://servicodados.ibge.gov.br/api/v3/agregados/6784/periodos/1996|1997|1998|1999|2000|2001|2002|2003|2004|2005|2006|2007|2008|2009|2010|2011|2012|2013|2014|2015|2016|2017|2018|2019|2020|2021/variaveis/9812?localidades=N1[all]"
 
-    # Fazendo a requisição
-    requisicao = requests.get(link)
-    informacoes = requisicao.json()
+    # Fazendo as requisições
+    requisicao_pib = requests.get(link_pib)
+    requisicao_pibpc = requests.get(link_pibpc)
+    informacoes_pib = requisicao_pib.json()
+    informacoes_pibpc = requisicao_pibpc.json()
 
-    # Extraindo os dados para um DataFrame
-    dados = []
-    series = informacoes[0]['resultados'][0]['series'][0]['serie']
+    # Extraindo os dados para DataFrames
+    dados_pib = []
+    dados_pibpc = []
     
-    for ano, valor in series.items():
-        dados.append({
+    series_pib = informacoes_pib[0]['resultados'][0]['series'][0]['serie']
+    series_pibpc = informacoes_pibpc[0]['resultados'][0]['series'][0]['serie']
+    
+    for ano, valor in series_pib.items():
+        dados_pib.append({
             'Ano': int(ano),
             'PIB': float(valor)
         })
+        
+    for ano, valor in series_pibpc.items():
+        dados_pibpc.append({
+            'Ano': int(ano),
+            'PIB per capita': float(valor)
+        })
 
-    df = pd.DataFrame(dados)
+    df_pib = pd.DataFrame(dados_pib)
+    df_pibpc = pd.DataFrame(dados_pibpc)
 
-    # Criando o gráfico de linha com Plotly
-    fig = px.line(df,
-                  x='Ano', 
-                  y='PIB',
-                  title='Evolução do PIB Brasileiro (1996-2021)',
-                  labels={'PIB': 'PIB em Milhões de Reais'},
-                  markers=True)
+    # Criando os gráficos de linha com Plotly
+    fig_pib = px.line(df_pib,
+                      x='Ano', 
+                      y='PIB',
+                      title='Evolução do PIB Brasileiro (1996-2021)',
+                      labels={'PIB': 'PIB em Milhões de Reais'},
+                      markers=True)
 
-    # Formatando o eixo y para mostrar valores em bilhões
-    fig.update_layout(
+    fig_pibpc = px.line(df_pibpc,
+                        x='Ano', 
+                        y='PIB per capita',
+                        title='Evolução do PIB per capita Brasileiro (1996-2021)',
+                        labels={'PIB per capita': 'PIB per capita em Reais'},
+                        markers=True)
+
+    # Formatando os eixos y
+    fig_pib.update_layout(
         yaxis=dict(
             tickformat=',',
             title='PIB (Milhões de Reais)'
         )
     )
-
-    # Exibindo no Streamlit
-    st.header('Produto Interno Bruto (PIB)')
-    st.plotly_chart(fig, use_container_width=True)
-
-    # Exibindo os dados brutos em formato JSON
-    st.markdown("**Fonte:** https://servicodados.ibge.gov.br/api/v3/agregados/6784/periodos/1996|1997|1998|1999|2000|2001|2002|2003|2004|2005|2006|2007|2008|2009|2010|2011|2012|2013|2014|2015|2016|2017|2018|2019|2020|2021/variaveis/9808?localidades=N1[all]")
-    with st.expander("Visualizar dados brutos (JSON)"):
-        st.json(informacoes)
-
-
-def pib_pcapita():
-    # URL da API do IBGE
-    link = "https://servicodados.ibge.gov.br/api/v3/agregados/6784/periodos/1996|1997|1998|1999|2000|2001|2002|2003|2004|2005|2006|2007|2008|2009|2010|2011|2012|2013|2014|2015|2016|2017|2018|2019|2020|2021/variaveis/9812?localidades=N1[all]"
-
-    # Fazendo a requisição
-    requisicao = requests.get(link)
-    informacoes = requisicao.json()
-    with open('dados.json', 'w', encoding='utf-8') as arquivo:
-        json.dump(informacoes, arquivo, ensure_ascii=False, indent=4)
-
-    # Extraindo os dados para um DataFrame
-    dados = []
-    series = informacoes[0]['resultados'][0]['series'][0]['serie']
     
-    for ano, valor in series.items():
-        dados.append({
-            'Ano': int(ano),
-            'PIB per capita': float(valor)
-        })
-
-    df = pd.DataFrame(dados)
-
-    # Criando o gráfico de linha com Plotly
-    fig = px.line(df,
-                  x='Ano', 
-                  y='PIB per capita',
-                  title='Evolução do PIB per capita Brasileiro (1996-2021)',
-                  labels={'PIB per capita': 'PIB per capita em Reais'},
-                  markers=True)
-
-    # Formatando o eixo y para mostrar valores em reais
-    fig.update_layout(
+    fig_pibpc.update_layout(
         yaxis=dict(
             tickformat=',',
             title='PIB per capita (Reais)'
         )
     )
 
-    # Exibindo no Streamlit
+    st.header('Produto Interno Bruto (PIB)')
 
-    st.plotly_chart(fig, use_container_width=True)
+    # Criando colunas para os gráficos
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.plotly_chart(fig_pib, use_container_width=True)
+        st.markdown("**Fonte:** https://servicodados.ibge.gov.br/api/v3/agregados/6784/periodos/1996|1997|1998|1999|2000|2001|2002|2003|2004|2005|2006|2007|2008|2009|2010|2011|2012|2013|2014|2015|2016|2017|2018|2019|2020|2021/variaveis/9808?localidades=N1[all]")
+        with st.expander("Visualizar dados brutos (JSON)"):
+            st.json(informacoes_pib)
 
-    # Exibindo os dados brutos em formato JSON
-    st.markdown("**Fonte:** https://servicodados.ibge.gov.br/api/v3/agregados/6784/periodos/1996|1997|1998|1999|2000|2001|2002|2003|2004|2005|2006|2007|2008|2009|2010|2011|2012|2013|2014|2015|2016|2017|2018|2019|2020|2021/variaveis/9812?localidades=N1[all]")
-    with st.expander("Visualizar dados brutos (JSON)"):
-        st.json(informacoes)
+    with col2:
+        st.plotly_chart(fig_pibpc, use_container_width=True)
+        st.markdown("**Fonte:** https://servicodados.ibge.gov.br/api/v3/agregados/6784/periodos/1996|1997|1998|1999|2000|2001|2002|2003|2004|2005|2006|2007|2008|2009|2010|2011|2012|2013|2014|2015|2016|2017|2018|2019|2020|2021/variaveis/9812?localidades=N1[all]")
+        with st.expander("Visualizar dados brutos (JSON)"):
+            st.json(informacoes_pibpc)
 
 
 def salario_medio():
