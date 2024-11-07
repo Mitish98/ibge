@@ -55,13 +55,13 @@ def area_urbanizada():
     
     # Exibindo no Streamlit
     st.title('Dados Abertos do IBGE')
-    st.markdown('Projeção de gráficos para facilitar a visualização e o estudo de dados abertos fornecidos pelo IBGE.')
+    st.markdown('Este projeto é uma iniciativa pessoal voltada para o consumo da API do Instituto Brasileiro de Geografia e Estatística (IBGE) para organizar as informações em visualizações gráficas, facilitando a análise, interpretação e acessibilidade de dados públicos.')
 
     # Adicionando espaço entre os gráficos
     st.markdown("<br><br>", unsafe_allow_html=True)
 
     st.header('Urbanização')
-    st.write('Dados sobre urbanização no Brasil.')
+    st.write('Esta seção oferece uma visão clara das tendências de urbanização no Brasil, permitindo uma análise detalhada sobre como as mudanças urbanas impactam a economia, o meio ambiente e a organização social.')
 
     # Criando três colunas para exibir os gráficos com espaço no meio
     col1, col_espaco, col2 = st.columns([4, 1, 3])
@@ -121,6 +121,7 @@ def censo_demografico():
 
     # Exibindo no Streamlit
     st.header('Censo Demográfico')
+    st.write('Essa seção oferece informações detalhadas sobre a composição populacional do Brasil, abrangendo aspectos como distribuição etária, gênero, escolaridade, renda, habitação, e condições de vida em todo o território nacional. Utilizando gráficos interativos e tabelas dinâmicas, a seção permite uma análise aprofundada das transformações sociais e econômicas do país ao longo dos anos.')
 
     # Exibindo o gráfico
     st.plotly_chart(fig_line, use_container_width=True)
@@ -131,7 +132,92 @@ def censo_demografico():
     with st.expander("Visualizar dados brutos (JSON)"):
         st.json(informacoes)
 
+def densidade_demo():
+    # URL da API do IBGE
+    link = "https://servicodados.ibge.gov.br/api/v3/agregados/1301/periodos/2010/variaveis/616?localidades=N2[all]"
 
+    # Fazendo a requisição
+    requisicao = requests.get(link)
+    informacoes = requisicao.json()
+    # Extraindo os dados para um DataFrame
+    dados = []
+    for resultado in informacoes[0]['resultados'][0]['series']:
+        localidade = resultado['localidade']['nome']
+        serie = resultado['serie']
+        for ano, valor in serie.items():
+            dados.append({
+                'Localidade': localidade,
+                'Ano': int(ano),
+                'Densidade Demográfica': float(valor)
+            })
+
+    df = pd.DataFrame(dados)
+
+    # Criando o gráfico de barras com Plotly
+    fig_bar = px.bar(df,
+                     x='Localidade',
+                     y='Densidade Demográfica',
+                     color='Localidade',
+                     title='Densidade Demográfica por Região (2010)',
+                     labels={'Densidade Demográfica': 'Habitantes por km²', 'Localidade': 'Região'})
+
+    # Exibindo o gráfico
+    st.plotly_chart(fig_bar, use_container_width=True)
+
+    # Exibindo os dados brutos em formato JSON
+    st.markdown("**Fonte:** https://servicodados.ibge.gov.br/api/v3/agregados/1301/periodos/2010/variaveis/616?localidades=N2[all]")
+    with st.expander("Visualizar dados brutos (JSON)"):
+        st.json(informacoes)
+
+
+def cor():
+    # URL da API do IBGE
+    link = "https://servicodados.ibge.gov.br/api/v3/agregados/9605/periodos/2022/variaveis/93?localidades=N1[all]&classificacao=86[2776,2777,2778,2779,2780]"
+
+    # Fazendo a requisição
+    requisicao = requests.get(link)
+    informacoes = requisicao.json()
+    # Extraindo os dados para um DataFrame
+    dados = []
+    for resultado in informacoes[0]['resultados']:
+        cor = resultado['classificacoes'][0]['categoria'].values()
+        valor = list(resultado['series'][0]['serie'].values())[0]
+        
+        if valor != '-':
+            dados.append({
+                'Cor': list(cor)[0],
+                'População': float(valor)
+            })
+
+    df = pd.DataFrame(dados)
+
+    # Criando o gráfico de barras com Plotly
+    fig_bar = px.bar(df, 
+                     x='Cor',
+                     y='População',
+                     title='População por Cor ou Raça declarada (2022)',
+                     labels={'População': 'Número de Pessoas', 'Cor': 'Cor'})
+
+    # Criando o gráfico de pizza com Plotly
+    fig_pie = px.pie(df, 
+                     names='Cor',
+                     values='População',
+                     title='',
+                     labels={'Cor': 'Cor'})
+
+    # Exibindo os gráficos lado a lado em colunas diferentes
+    col1, col2 = st.columns(2)
+    with col1:
+        st.plotly_chart(fig_bar, use_container_width=True)
+    with col2:
+        st.plotly_chart(fig_pie, use_container_width=True)
+
+    # Exibindo os dados brutos em formato JSON
+    st.markdown("**Fonte:** https://servicodados.ibge.gov.br/api/v3/agregados/9605/periodos/2022/variaveis/93?localidades=N1[all]&classificacao=86[2776,2777,2778,2779,2780]")
+    with st.expander("Visualizar dados brutos (JSON)"):
+        st.json(informacoes)
+
+    
 def especies_ameacadas():
     # URL da API do IBGE
     link = "https://servicodados.ibge.gov.br/api/v3/agregados/7392/periodos/2014/variaveis/10484?localidades=N1[all]&classificacao=920[48255,48256,48257,48258,48259,48260,48261,48275]|12920[119343,119344,119345,119346,119347,48240,48241]"
@@ -168,6 +254,7 @@ def especies_ameacadas():
 
     # Exibindo no Streamlit
     st.header('Espécies Ameaçadas')
+    st.write('Nessa seção, são apresentados gráficos e mapas interativos que ilustram a distribuição geográfica das espécies ameaçadas, os níveis de risco e as principais causas de ameaça, como desmatamento, mudanças climáticas e atividades humanas.')
     st.plotly_chart(fig, use_container_width=True)
 
     # Exibindo os dados brutos em formato JSON
@@ -241,6 +328,7 @@ def pib_e_pibpc():
     )
 
     st.header('Produto Interno Bruto (PIB)')
+    st.write('Esta seção oferece gráficos e mapas que ilustram a variação do PIB em diferentes setores, como agricultura, indústria e serviços, bem como a participação econômica das regiões e estados brasileiros. Por meio dessas visualizações, é possível compreender as dinâmicas de crescimento e retração econômica, identificar tendências e analisar fatores que impactam diretamente o desenvolvimento do país. ')
 
     # Criando colunas para os gráficos
     col1, col2 = st.columns(2)
@@ -265,8 +353,6 @@ def salario_medio():
     # Fazendo a requisição
     requisicao = requests.get(link)
     informacoes = requisicao.json()
-    with open('dados.json', 'w', encoding='utf-8') as arquivo:
-        json.dump(informacoes, arquivo, ensure_ascii=False, indent=4)
     # Extraindo os dados para um DataFrame
     dados = []
     series = informacoes[0]['resultados'][0]['series'][0]['serie']
@@ -297,6 +383,7 @@ def salario_medio():
 
     # Exibindo no Streamlit
     st.header('Demografia das Empresas e Estatísticas de Empreendedorismo')
+    st.write('Esta seção apresenta dados em gráficos interativos sobre a quantidade de empresas ativas, taxas de entrada e saída do mercado, tamanho das empresas, setores predominantes e distribuição geográfica dos empreendimentos.')
     st.plotly_chart(fig, use_container_width=True)
 
     # Exibindo os dados brutos em formato JSON
@@ -307,7 +394,7 @@ def salario_medio():
 '''
 def x():
     # URL da API do IBGE
-    link = ""
+    link = "https://servicodados.ibge.gov.br/api/v3/agregados/9605/periodos/2022/variaveis/93?localidades=N1[all]&classificacao=86[2776,2777,2778,2779,2780]"
 
     # Fazendo a requisição
     requisicao = requests.get(link)

@@ -1,23 +1,16 @@
 [
     {
-        "id": "10143",
-        "variavel": "Salário médio mensal em reais",
-        "unidade": "Reais",
+        "id": "93",
+        "variavel": "População residente",
+        "unidade": "Pessoas",
         "resultados": [
             {
                 "classificacoes": [
                     {
-                        "id": "319",
-                        "nome": "Faixas de pessoal ocupado",
+                        "id": "86",
+                        "nome": "Cor ou raça",
                         "categoria": {
-                            "104029": "Total"
-                        }
-                    },
-                    {
-                        "id": "12762",
-                        "nome": "Classificação Nacional de Atividades Econômicas (CNAE 2.0)",
-                        "categoria": {
-                            "117897": "Total"
+                            "2776": "Branca"
                         }
                     }
                 ],
@@ -32,20 +25,111 @@
                             "nome": "Brasil"
                         },
                         "serie": {
-                            "2008": "1255.73",
-                            "2009": "1357.99",
-                            "2010": "1461.88",
-                            "2011": "1592.67",
-                            "2012": "1723.15",
-                            "2013": "1889.74",
-                            "2014": "2030.70",
-                            "2015": "2168.91",
-                            "2016": "2328.03",
-                            "2017": "2470.00",
-                            "2018": "2559.66",
-                            "2019": "2530.76",
-                            "2020": "2568.48",
-                            "2021": "2823.92"
+                            "2022": "88252121"
+                        }
+                    }
+                ]
+            },
+            {
+                "classificacoes": [
+                    {
+                        "id": "86",
+                        "nome": "Cor ou raça",
+                        "categoria": {
+                            "2777": "Preta"
+                        }
+                    }
+                ],
+                "series": [
+                    {
+                        "localidade": {
+                            "id": "1",
+                            "nivel": {
+                                "id": "N1",
+                                "nome": "Brasil"
+                            },
+                            "nome": "Brasil"
+                        },
+                        "serie": {
+                            "2022": "20656458"
+                        }
+                    }
+                ]
+            },
+            {
+                "classificacoes": [
+                    {
+                        "id": "86",
+                        "nome": "Cor ou raça",
+                        "categoria": {
+                            "2778": "Amarela"
+                        }
+                    }
+                ],
+                "series": [
+                    {
+                        "localidade": {
+                            "id": "1",
+                            "nivel": {
+                                "id": "N1",
+                                "nome": "Brasil"
+                            },
+                            "nome": "Brasil"
+                        },
+                        "serie": {
+                            "2022": "850130"
+                        }
+                    }
+                ]
+            },
+            {
+                "classificacoes": [
+                    {
+                        "id": "86",
+                        "nome": "Cor ou raça",
+                        "categoria": {
+                            "2779": "Parda"
+                        }
+                    }
+                ],
+                "series": [
+                    {
+                        "localidade": {
+                            "id": "1",
+                            "nivel": {
+                                "id": "N1",
+                                "nome": "Brasil"
+                            },
+                            "nome": "Brasil"
+                        },
+                        "serie": {
+                            "2022": "92083286"
+                        }
+                    }
+                ]
+            },
+            {
+                "classificacoes": [
+                    {
+                        "id": "86",
+                        "nome": "Cor ou raça",
+                        "categoria": {
+                            "2780": "Indígena"
+                        }
+                    }
+                ],
+                "series": [
+                    {
+                        "localidade": {
+                            "id": "1",
+                            "nivel": {
+                                "id": "N1",
+                                "nome": "Brasil"
+                            },
+                            "nome": "Brasil"
+                        },
+                        "serie": {
+                            "2022": "1227642"
                         }
                     }
                 ]
