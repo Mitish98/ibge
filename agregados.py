@@ -88,6 +88,72 @@ def area_urbanizada():
         st.json(informacoes2)
     
 
+def municipios():
+    # URL da API do IBGE
+    link = "https://servicodados.ibge.gov.br/api/v3/agregados/1290/periodos/2010/variaveis/603?localidades=N2[all]"
+
+    # Fazendo a requisição
+    requisicao = requests.get(link)
+    informacoes = requisicao.json()
+
+    # Extraindo os dados para um DataFrame
+    dados = []
+    for resultado in informacoes[0]['resultados'][0]['series']:
+        regiao = resultado['localidade']['nome']
+        valor = resultado['serie']['2010']
+        dados.append({
+            'Região': regiao,
+            'Número de Municípios': int(valor)
+        })
+
+    df = pd.DataFrame(dados)
+
+    # Criando o gráfico de barras com Plotly
+    fig_bars = px.bar(df,
+                     x='Região',
+                     y='Número de Municípios',
+                     title='Número de Municípios por Grande Região (2010)',
+                     labels={'Número de Municípios': 'Número de Municípios'})
+
+    # URL da API do IBGE para o total de população por município
+    link_populacao = "https://servicodados.ibge.gov.br/api/v3/agregados/1290/periodos/2010/variaveis/609?localidades=N2[all]&classificacao=11275[91176]"
+
+    # Fazendo a requisição
+    requisicao_populacao = requests.get(link_populacao)
+    informacoes_populacao = requisicao_populacao.json()
+
+    # Extraindo os dados para um DataFrame
+    dados_populacao = []
+    for resultado in informacoes_populacao[0]['resultados'][0]['series']:
+        municipo = resultado['localidade']['nome']
+        valor = resultado['serie']['2010']
+        dados_populacao.append({
+            'Município': municipo,
+            'Total de População': int(valor)
+        })
+
+    df_populacao = pd.DataFrame(dados_populacao)
+
+    # Criando o gráfico de barras com Plotly
+    fig_bars_populacao = px.bar(df_populacao,
+                                x='Município',
+                                y='Total de População',
+                                title='Total da população por Grande Região (2010)',
+                                labels={'Total de População': 'Total de População'})
+
+    # Exibindo no Streamlit
+    col1, col2 = st.columns(2)
+    with col1:
+        st.plotly_chart(fig_bars, use_container_width=True)
+    with col2:
+        st.plotly_chart(fig_bars_populacao, use_container_width=True)
+
+    # Exibindo os dados brutos em formato JSON
+    st.markdown("**Fonte:** https://servicodados.ibge.gov.br/api/v3/agregados/1290/periodos/2010/variaveis/603?localidades=N2[all]")
+    st.markdown("**Fonte:** https://servicodados.ibge.gov.br/api/v3/agregados/1290/periodos/2010/variaveis/609?localidades=N2[all]&classificacao=11275[91176]")
+    with st.expander("Visualizar dados brutos (JSON)"):
+        st.json(informacoes)
+        st.json(informacoes_populacao)
 
 def censo_demografico():
     # URL da API do IBGE
@@ -166,6 +232,49 @@ def densidade_demo():
 
     # Exibindo os dados brutos em formato JSON
     st.markdown("**Fonte:** https://servicodados.ibge.gov.br/api/v3/agregados/1301/periodos/2010/variaveis/616?localidades=N2[all]")
+    with st.expander("Visualizar dados brutos (JSON)"):
+        st.json(informacoes)
+
+def faixa_etaria():
+    # URL da API do IBGE
+    link = "https://servicodados.ibge.gov.br/api/v3/agregados/1209/periodos/2022/variaveis/606?localidades=N1[all]&classificacao=58[1140,1141,1142,1143,2792,92982,1144,1145,3299,3300,3301,3520,3244,3245]"
+
+    # Fazendo a requisição
+    requisicao = requests.get(link)
+    informacoes = requisicao.json()
+    # Extraindo os dados para um DataFrame
+    dados = []
+    for resultado in informacoes[0]['resultados']:
+        faixa_etaria = resultado['classificacoes'][0]['categoria'].values()
+        valor = list(resultado['series'][0]['serie'].values())[0]
+        
+        if valor != '-':
+            try:
+                dados.append({
+                    'Faixa Etária': list(faixa_etaria)[0],
+                    'População': float(valor)
+                })
+            except ValueError:
+                print(f"Valor inválido para conversão: {valor}")
+                dados.append({
+                    'Faixa Etária': list(faixa_etaria)[0],
+                    'População': 0.0
+                })
+
+    df = pd.DataFrame(dados)
+
+    # Criando o gráfico de barras com Plotly
+    fig_bar = px.bar(df, 
+                     x='Faixa Etária',
+                     y='População',
+                     title='População por Faixa Etária (2022)',
+                     labels={'População': 'Número de Pessoas', 'Faixa Etária': 'Faixa Etária'})
+
+    # Exibindo o gráfico
+    st.plotly_chart(fig_bar, use_container_width=True)
+
+    # Exibindo os dados brutos em formato JSON
+    st.markdown("**Fonte:** https://servicodados.ibge.gov.br/api/v3/agregados/1209/periodos/2022/variaveis/606?localidades=N1[all]&classificacao=58[1140,1141,1142,1143,2792,92982,1144,1145,3299,3300,3301,3520,3244,3245]")
     with st.expander("Visualizar dados brutos (JSON)"):
         st.json(informacoes)
 
@@ -391,10 +500,86 @@ def salario_medio():
     with st.expander("Visualizar dados brutos (JSON)"):
         st.json(informacoes)
 
+def alfabetizacao():
+ 
+    # URL da API do IBGE para a taxa de alfabetização por grande região
+    link_alfabetizacao = "https://servicodados.ibge.gov.br/api/v3/agregados/1383/periodos/2010/variaveis/1646?localidades=N2[all]&classificacao=2[6794]"
+
+    # Fazendo a requisição
+    requisicao_alfabetizacao = requests.get(link_alfabetizacao)
+    informacoes_alfabetizacao = requisicao_alfabetizacao.json()
+
+    # Extraindo os dados para um DataFrame
+    dados_alfabetizacao = []
+    for resultado in informacoes_alfabetizacao[0]['resultados'][0]['series']:
+        grande_regiao = resultado['localidade']['nome']
+        valor = resultado['serie']['2010']
+        dados_alfabetizacao.append({
+            'Grande Região': grande_regiao,
+            'Taxa de Alfabetização': float(valor)
+        })
+
+    df_alfabetizacao = pd.DataFrame(dados_alfabetizacao)
+
+    # Criando o gráfico de barras com Plotly
+    fig_alfabetizacao = px.bar(df_alfabetizacao,
+                                x='Grande Região', 
+                                y='Taxa de Alfabetização',
+                                title='Taxa de Alfabetização por Grande Região (2010)',
+                                labels={'Taxa de Alfabetização': 'Taxa de Alfabetização (%)', 'Grande Região': 'Grande Região'},
+                                color='Grande Região')
+
+    # Exibindo no Streamlit
+    st.plotly_chart(fig_alfabetizacao, use_container_width=True)
+
+    # Exibindo os dados brutos em formato JSON
+    st.markdown("**Fonte:** https://servicodados.ibge.gov.br/api/v3/agregados/1383/periodos/2010/variaveis/1646?localidades=N1[all]&classificacao=2[6794]")
+    with st.expander("Visualizar dados brutos (JSON)"):
+        st.json(informacoes_alfabetizacao)
+
+
+def areas_naturais():
+    # URL da API do IBGE para áreas naturais e antropizadas
+    link_areas_naturais = "https://servicodados.ibge.gov.br/api/v3/agregados/7016/periodos/2020/variaveis/10479?localidades=N123[all]&classificacao=11651[all]"
+
+    # Fazendo a requisição
+    requisicao_areas_naturais = requests.get(link_areas_naturais)
+    informacoes_areas_naturais = requisicao_areas_naturais.json()
+
+    # Extraindo os dados para um DataFrame
+    dados_areas_naturais = []
+    for resultado in informacoes_areas_naturais[0]['resultados'][0]['series']:
+        localidade = resultado['localidade']['nome']
+        valor_areas_naturais = float(resultado['serie']['2020'])
+        valor_areas_antropizadas = float(resultado['serie']['2020'])
+        dados_areas_naturais.append({
+            'Localidade': localidade,
+            'Áreas Naturais': valor_areas_naturais,
+            'Áreas Antropizadas': valor_areas_antropizadas
+        })
+
+    df_areas_naturais = pd.DataFrame(dados_areas_naturais)
+
+    # Criando o gráfico de barras com Plotly
+    fig_areas_naturais = px.bar(df_areas_naturais,
+                                 x='Localidade', 
+                                 y=['Áreas Naturais', 'Áreas Antropizadas'],
+                                 title='Comparação de Áreas Naturais e Antropizadas por Localidade (2020)',
+                                 labels={'value': 'Valor (%)', 'variable': 'Categoria'},
+                                 barmode='group')
+
+    # Exibindo no Streamlit
+    st.plotly_chart(fig_areas_naturais, use_container_width=True)
+
+    # Exibindo os dados brutos em formato JSON
+    st.markdown("**Fonte:** https://servicodados.ibge.gov.br/api/v3/agregados/7016/periodos/2020/variaveis/10479?localidades=N123[all]&classificacao=11651[all]")
+    with st.expander("Visualizar dados brutos (JSON)"):
+        st.json(informacoes_areas_naturais)
+
 '''
 def x():
     # URL da API do IBGE
-    link = "https://servicodados.ibge.gov.br/api/v3/agregados/9605/periodos/2022/variaveis/93?localidades=N1[all]&classificacao=86[2776,2777,2778,2779,2780]"
+    link = "https://servicodados.ibge.gov.br/api/v3/agregados/1209/periodos/2022/variaveis/606?localidades=N1[all]&classificacao=58[1140,1141,1142,1143,2792,92982,1144,1145,3299,3300,3301,3520,3244,3245]"
 
     # Fazendo a requisição
     requisicao = requests.get(link)
